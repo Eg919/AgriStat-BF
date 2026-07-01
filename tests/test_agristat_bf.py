@@ -25,6 +25,7 @@ class AgriStatBFTestCase(unittest.TestCase):
 
     def test_computes_decision_support_indicators(self) -> None:
         self.assertEqual(self.tool.top_region_for_cereal("maïs", 2024), "Hauts-Bassins")
+        self.assertEqual(self.tool.top_region_for_cereal("MAÏS", 2024), "Hauts-Bassins")
         self.assertIsNone(self.tool.top_region_for_cereal("Riz", 2024))
         self.assertEqual(
             self.tool.average_yield_by_cereal(2024),

@@ -80,6 +80,6 @@ class AgriStatBF:
             max_value = 1
         lines = ["Production céréalière par région"]
         for region, total in totals.items():
-            bar_length = max(1, round((total / max_value) * width))
+            bar_length = max(0, round((total / max_value) * width))
             lines.append(f"{region:20} | {'#' * bar_length} {total:.0f} t")
         return "\n".join(lines)
