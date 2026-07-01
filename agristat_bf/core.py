@@ -56,6 +56,7 @@ class AgriStatBF:
         return {
             cereal: sum(values) / len(values)
             for cereal, values in sorted(grouped.items())
+            if values
         }
 
     def top_region_for_cereal(self, cereal: str, year: int | None = None) -> str | None:
@@ -75,6 +76,8 @@ class AgriStatBF:
             return "Aucune donnée disponible."
 
         max_value = max(totals.values())
+        if max_value == 0:
+            max_value = 1
         lines = ["Production céréalière par région"]
         for region, total in totals.items():
             bar_length = max(1, round((total / max_value) * width))
