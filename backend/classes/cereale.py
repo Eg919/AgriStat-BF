@@ -1,4 +1,4 @@
-from backend.classes.modele import get_db_connection
+from backend.classes.analyseur import get_db_connection
 
 class Cereale:
     """
