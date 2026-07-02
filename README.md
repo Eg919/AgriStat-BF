@@ -1,7 +1,25 @@
 # AgriStat-BF API
 
 Documentation de l'API pour la plateforme AgriStat-BF.
-Le serveur s'exécute localement sur : `http://127.0.0.1:8000`
+
+## 🚀 Installation et Démarrage
+
+### 1. Installer les dépendances
+Avant de lancer le projet, vous devez installer les bibliothèques requises (FastAPI, Uvicorn, Pydantic).
+Ouvrez un terminal à la racine du projet et tapez :
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Démarrer le serveur
+Placez-vous dans le dossier `backend` et lancez le serveur Uvicorn :
+```bash
+cd backend
+uvicorn main:app --reload
+```
+Le serveur s'exécutera localement sur : `http://127.0.0.1:8000`
+
+---
 
 > 💡 **Astuce** : La façon la plus simple de tester tous ces endpoints sans Postman est d'ouvrir **http://127.0.0.1:8000/docs** dans votre navigateur. C'est une interface interactive (Swagger) qui permet de générer des requêtes en un clic.
 
