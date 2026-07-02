@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriStat-BF — Connexion</title>
+    <meta name="description" content="Connexion à la plateforme AgriStat-BF de statistiques agricoles du Burkina Faso">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg-deep: #030a06;
+            --bg-mid: #0a1f12;
+            --surface: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.09);
+            --border: rgba(255, 255, 255, 0.1);
+            --border-focus: rgba(16, 185, 129, 0.6);
+            --text: #f1fdf5;
+            --text-muted: #6b9e82;
+            --danger: #f87171;
+            --font: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg-deep);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.12) 0%, transparent 55%),
+                        radial-gradient(ellipse at 80% 20%, rgba(5, 150, 105, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 60% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 45%);
+            background-color: var(--bg-deep);
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: rgba(16, 185, 129, 0.08);
+            top: -100px; left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px; height: 300px;
+            background: rgba(5, 150, 105, 0.06);
+            bottom: -80px; right: -80px;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 15px) scale(0.97); }
+        }
+
+        /* Grid pattern overlay */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Main card */
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 44px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 32px 64px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+
+        /* Logo */
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 36px;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 32px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 8px 32px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,0.2); }
+            50% { box-shadow: 0 8px 48px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
+        }
+
+        .logo-text {
+            text-align: center;
+        }
+
+        .logo-text h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f1fdf5, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text .subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Form */
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-intro {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        .form-group input:focus {
+            background: var(--surface-hover);
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Error message */
+        .error-box {
+            display: none;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--danger);
+            margin-bottom: 18px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-box.visible {
+            display: flex;
+        }
+
+        /* Submit button */
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px var(--primary-glow);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn-login:hover::before { opacity: 1; }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 32px var(--primary-glow);
+        }
+
+        .btn-login:active { transform: translateY(0); }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-login .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Credentials hint */
+        .creds-hint {
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 12px;
+        }
+
+        .creds-hint p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .cred-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .cred-row:not(:last-child) {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .cred-label {
+            color: var(--text-muted);
+        }
+
+        .cred-value {
+            font-family: 'Courier New', monospace;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cred-value:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .role-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .role-analyste {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .role-viewer {
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .footer-text {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-canvas"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">
+                    <h1>AgriStat-BF</h1>
+                    <div class="subtitle">Plateforme Agricole · Burkina Faso</div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <h2>Connexion</h2>
+            <p class="form-intro">Accédez à votre espace de gestion agricole</p>
+
+            <div id="error-box" class="error-box">
+                <span>⚠️</span>
+                <span id="error-msg">Identifiants incorrects. Veuillez réessayer.</span>
+            </div>
+
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Entrez votre identifiant"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔑</span>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="submit-btn">
+                    <span id="btn-text">Se connecter</span>
+                    <div class="spinner" id="btn-spinner"></div>
+                </button>
+            </form>
+
+            <!-- Credentials hint -->
+            <div class="creds-hint">
+                <p>🔐 Comptes de démonstration</p>
+                <div class="cred-row">
+                    <span class="cred-label">Analyste</span>
+                    <span class="cred-value" onclick="fillCredentials('admin','agristat2025')">admin</span>
+                    <span class="cred-value" onclick="fillCredentials('admin','agristat2025')">agristat2025</span>
+                    <span class="role-badge role-analyste">Analyste</span>
+                </div>
+                <div class="cred-row">
+                    <span class="cred-label">Lecteur</span>
+                    <span class="cred-value" onclick="fillCredentials('viewer','viewer123')">viewer</span>
+                    <span class="cred-value" onclick="fillCredentials('viewer','viewer123')">viewer123</span>
+                    <span class="role-badge role-viewer">Visualisateur</span>
+                </div>
+            </div>
+
+            <p class="footer-text">AgriStat-BF © 2025 · IMCP Master 1</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        // Redirect if already logged in
+        const existingToken = localStorage.getItem('agristat_token');
+        if (existingToken) {
+            fetch(`${API_BASE}/api/auth/me`, {
+                headers: { 'x-token': existingToken }
+            }).then(r => {
+                if (r.ok) window.location.href = 'index.html';
+                else localStorage.removeItem('agristat_token');
+            }).catch(() => {});
+        }
+
+        // Fill credentials on click
+        function fillCredentials(user, pass) {
+            document.getElementById('username').value = user;
+            document.getElementById('password').value = pass;
+            document.getElementById('username').focus();
+        }
+
+        // Login form submit
+        const form = document.getElementById('login-form');
+        const errorBox = document.getElementById('error-box');
+        const errorMsg = document.getElementById('error-msg');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const submitBtn = document.getElementById('submit-btn');
+
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            btnText.style.display = loading ? 'none' : 'block';
+            btnSpinner.style.display = loading ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorBox.classList.add('visible');
+        }
+
+        function hideError() {
+            errorBox.classList.remove('visible');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('Veuillez remplir tous les champs.');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store session info
+                    localStorage.setItem('agristat_token', data.token);
+                    localStorage.setItem('agristat_username', data.username);
+                    localStorage.setItem('agristat_role', data.role);
+
+                    // Redirect to main app
+                    window.location.href = 'index.html';
+                } else {
+                    showError(data.detail || 'Identifiants incorrects. Veuillez réessayer.');
+                }
+            } catch (err) {
+                showError('Impossible de joindre le serveur. Vérifiez que le backend est lancé sur le port 8000.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Enter key on password
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
+        });
+    </script>
+</body>
+</html>

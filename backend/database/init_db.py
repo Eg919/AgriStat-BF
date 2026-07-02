@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import hashlib
 
 def init_db():
     # S'assurer que le dossier existe
@@ -51,7 +52,30 @@ def init_db():
         FOREIGN KEY (id_province) REFERENCES provinces (id_province),
         FOREIGN KEY (id_cereale) REFERENCES cereales (id_cereale)
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+        id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('analyste', 'visualisateur'))
+    );
     """)
+
+    # Insertion des comptes utilisateurs par défaut
+    cursor.execute("SELECT COUNT(*) FROM users")
+    if cursor.fetchone()[0] == 0:
+        def sha256(password: str) -> str:
+            return hashlib.sha256(password.encode()).hexdigest()
+
+        default_users = [
+            ('admin',  sha256('agristat2025'), 'analyste'),
+            ('viewer', sha256('viewer123'),    'visualisateur'),
+        ]
+        cursor.executemany(
+            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+            default_users
+        )
+        print("Comptes utilisateurs par défaut créés : admin / viewer")
 
     # Insertion de données initiales (si la base est vide)
     cursor.execute("SELECT COUNT(*) FROM regions")

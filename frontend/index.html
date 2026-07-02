@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriStat-BF - Maquette Interface & API Endpoints</title>
+    <!-- Modern font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981; /* Emerald */
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --background: #f8fafc; /* Slate 50 */
+            --surface: #ffffff;
+            --text: #0f172a; /* Slate 900 */
+            --text-muted: #64748b; /* Slate 500 */
+            --border: #e2e8f0; /* Slate 200 */
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --success: #10b981;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Dark mode colors */
+        [data-theme="dark"] {
+            --background: #0f172a; /* Slate 900 */
+            --surface: #1e293b; /* Slate 800 */
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --primary-light: #064e3b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        aside {
+            width: 280px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        main {
+            flex-grow: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 1400px;
+        }
+
+        /* Logo Area */
+        .logo-container {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Sidebar Navigation */
+        .nav-list {
+            list-style: none;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item button {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item button:hover {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        .nav-item.active button {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        /* Role & Theme Controls */
+        .controls-panel {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--background);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Header Area */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header-title h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .badge-endpoint {
+            font-family: monospace;
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+
+        [data-theme="dark"] .badge-endpoint {
+            background-color: #334155;
+            color: #cbd5e1;
+            border-color: #475569;
+        }
+
+        .endpoint-method {
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .method-get { background-color: var(--info); }
+        .method-post { background-color: var(--success); }
+        .method-put { background-color: var(--warning); }
+        .method-delete { background-color: var(--danger); }
+
+        /* KPI Dashboard Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .kpi-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .kpi-title {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .kpi-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard content rows */
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1.5px solid var(--border);
+            background-color: var(--background);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: var(--background);
+        }
+
+        /* Badges & Status */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status-deficit {
+            background-color: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .status-normal {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .status-surplus {
+            background-color: var(--info-light);
+            color: var(--info);
+        }
+
+        /* Buttons and Inputs */
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--background);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: var(--font);
+            font-size: 14px;
+            background-color: var(--surface);
+            color: var(--text);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Custom Chart Simulation */
+        .chart-container {
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding-top: 20px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .chart-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 12%;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(to top, var(--primary-dark), var(--primary));
+            position: relative;
+            transform-origin: bottom;
+            animation: growBar 0.8s ease-out forwards;
+        }
+
+        @keyframes growBar {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+
+        .chart-bar-label {
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 8px;
+            color: var(--text-muted);
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -24px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text);
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Tabs display control */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form split */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Region detail collapse card list */
+        .region-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .region-card-item {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .region-card-header {
+            padding: 16px 24px;
+            background-color: var(--background);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .region-card-body {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .region-card-body.active {
+            display: block;
+        }
+
+        /* Cereal grid card */
+        .cereal-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .cereal-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
+
+        .cereal-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 50%;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        /* Terminal Report View */
+        .terminal-box {
+            background-color: #0f172a;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 13px;
+            border: 1px solid #1e293b;
+        }
+
+        /* Analyst only message */
+        .analyst-only-notice {
+            background-color: var(--warning-light);
+            color: var(--warning);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--warning);
+            margin-bottom: 20px;
+        }
+
+        /* Endpoints list inside page */
+        .endpoints-list {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .endpoint-row {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .endpoint-row.post { border-left-color: var(--success); }
+        .endpoint-row.put { border-left-color: var(--warning); }
+        .endpoint-row.delete { border-left-color: var(--danger); }
+
+        /* ==========================================
+           MODAL CRUD UNIVERSEL
+        ========================================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.15s ease;
+        }
+        .modal-overlay.open { display: flex; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 520px;
+            padding: 32px;
+            position: relative;
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .modal-close {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--background);
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items:center; justify-content:center;
+        }
+        .modal-close:hover { background: var(--border); }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* Campagnes table */
+        .campagne-table-actions { display: flex; gap: 6px; justify-content: flex-end; }
+        .btn-icon {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--background);
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+        .btn-icon:hover { background: var(--border); }
+        .btn-icon.danger { color: var(--danger); border-color: var(--danger-light); background: var(--danger-light); }
+        .btn-icon.danger:hover { background: #fca5a5; }
+        .btn-icon.edit { color: var(--info); border-color: var(--info-light); background: var(--info-light); }
+        .btn-icon.edit:hover { background: #93c5fd; }
+        .btn-icon.success { color: var(--primary-dark); border-color: var(--primary-light); background: var(--primary-light); }
+        .btn-icon.success:hover { background: #6ee7b7; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="logo-container">
+            <div class="logo-icon">🌾</div>
+            <div class="logo-text">
+                <h1>AgriStat-BF</h1>
+                <span>Burkina Faso POO</span>
+            </div>
+        </div>
+
+        <ul class="nav-list">
+            <li class="nav-item active" data-target="tab-dashboard">
+                <button>📊 Tableau de Bord</button>
+            </li>
+            <li class="nav-item" data-target="tab-regions">
+                <button>🗺️ Régions & Provinces</button>
+            </li>
+            <li class="nav-item" data-target="tab-cereales">
+                <button>🌾 Référentiel Céréales</button>
+            </li>
+            <li class="nav-item" data-target="tab-campagnes">
+                <button>📅 Campagnes</button>
+            </li>
+            <li class="nav-item" data-target="tab-saisie">
+                <button>✍️ Saisie Productions</button>
+            </li>
+            <li class="nav-item" data-target="tab-analyses">
+                <button>📈 Analyse & KPIs</button>
+            </li>
+        </ul>
+
+        <div class="controls-panel">
+            <!-- User info widget (populated by auth script) -->
+            <div id="user-widget" style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom: 1px solid var(--border); margin-bottom:10px;">
+                <div id="user-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👤</div>
+                <div style="flex:1;min-width:0;">
+                    <div id="user-name" style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+                    <div id="user-role" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">—</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="campagne-select">Campagne Agricole</label>
+                <select id="campagne-select" class="control-select">
+                    <option value="2025" selected>Campagne 2025</option>
+                    <option value="2024">Campagne 2024</option>
+                </select>
+            </div>
+            <button id="logout-btn" onclick="doLogout()" style="width:100%;padding:10px;background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                🚪 Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN BODY -->
+    <main>
+        <!-- TAB: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active">
+            <header>
+                <div class="header-title">
+                    <h2>Tableau de Bord Analytique</h2>
+                    <p>Suivi de la production céréalière et sécurité alimentaire</p>
+                </div>
+                <div class="badge-endpoint">
+                    <span class="endpoint-method method-get">GET</span>
+                    /api/analyses/{annee}/kpis
+                </div>
+            </header>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background-color: var(--primary-light); color: var(--primary-dark)">🌾</div>
+                    <span class="kpi-title">Production Totale</span>
+                    <span class="kpi-value" id="kpi-prod-totale">2 850 000 T</span>
+                    <span class="kpi-desc">Volume cumulé des céréales</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background-color: var(--info-light); color: var(--info)">🚜</div>
+                    <span class="kpi-title">Rendement Moyen</span>
+                    <span class="kpi-value" id="kpi-rendement">1.68 T/ha</span>
+                    <span class="kpi-desc">Moyenne nationale brute</span>
+                </div>
+                <div class="kpi-card" id="kpi-couverture-card">
+                    <div class="kpi-icon" style="background-color: var(--warning-light); color: var(--warning)">🥗</div>
+                    <span class="kpi-title">Taux Couverture</span>
+                    <span class="kpi-value" id="kpi-couverture">84.2 %</span>
+                    <span class="kpi-desc">Besoins alimentaires couverts</span>
+                </div>
+                <div class="kpi-card" id="kpi-deficits-card">
+                    <div class="kpi-icon" style="background-color: var(--danger-light); color: var(--danger)">🚨</div>
+                    <span class="kpi-title">Zones Déficitaires</span>
+                    <span class="kpi-value" id="kpi-deficits">12</span>
+                    <span class="kpi-desc">Provinces sous le seuil critique</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Row: Chart & Deficit regions list -->
+            <div class="dashboard-row">
+                <!-- Chart card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Production par Spéculation Céréalière (en tonnes)</span>
+                        <div class="badge-endpoint">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/campagnes/{annee}
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: 65%;">
+                                <div class="chart-bar-value">950K</div>
+                            </div>
+                            <span class="chart-bar-label">Maïs</span>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: 50%;">
+                                <div class="chart-bar-value">720K</div>
+                            </div>
+                            <span class="chart-bar-label">Sorgho</span>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: 40%;">
+                                <div class="chart-bar-value">580K</div>
+                            </div>
+                            <span class="chart-bar-label">Mil</span>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: 45%;">
+                                <div class="chart-bar-value">600K</div>
+                            </div>
+                            <span class="chart-bar-label">Riz</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deficit Provinces card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Alerte Vulnérabilité</span>
+                        <div class="badge-endpoint" style="display: none;">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/analyses/{annee}/deficit-zones
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--danger-light); border-radius: 8px;">
+                            <div>
+                                <strong style="font-size: 14px; color: var(--danger);">Yagha</strong>
+                                <div style="font-size: 11px; color: var(--text-muted)">Région: Sahel</div>
+                            </div>
+                            <span class="status-badge status-deficit">Déficitaire (-40%)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--danger-light); border-radius: 8px;">
+                            <div>
+                                <strong style="font-size: 14px; color: var(--danger);">Oudalan</strong>
+                                <div style="font-size: 11px; color: var(--text-muted)">Région: Sahel</div>
+                            </div>
+                            <span class="status-badge status-deficit">Déficitaire (-35%)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--warning-light); border-radius: 8px;">
+                            <div>
+                                <strong style="font-size: 14px; color: var(--warning);">Bam</strong>
+                                <div style="font-size: 11px; color: var(--text-muted)">Région: Centre-Nord</div>
+                            </div>
+                            <span class="status-badge status-deficit" style="background-color: var(--warning-light); color: var(--warning);">Vulnérable (-10%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: REGIONS & PROVINCES -->
+        <div id="tab-regions" class="tab-content">
+            <header>
+                <div class="header-title">
+                    <h2>Structures Administratives</h2>
+                    <p>Configuration des Régions et Provinces du Burkina Faso</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="badge-endpoint">
+                        <span class="endpoint-method method-get">GET</span>
+                        /api/regions
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-row" style="grid-template-columns: 2fr 1fr;">
+                <!-- Regions List -->
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Liste des Régions et Provinces associées</h3>
+                    <div class="region-card-list">
+                        <!-- Region 1 -->
+                        <div class="region-card-item">
+                            <div class="region-card-header" onclick="toggleRegion(this)">
+                                <div>
+                                    <strong style="font-size: 16px;">Hauts-Bassins</strong>
+                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 15px;">Habitants: 2 150 000 | Superficie: 25 300 km²</span>
+                                </div>
+                                <span style="font-size: 14px; color: var(--primary-dark); font-weight: bold;">Densité: 84.9 hab/km²</span>
+                            </div>
+                            <div class="region-card-body">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; color: var(--text-muted);">
+                                    <span>Vulnérabilité de base : Faible</span>
+                                    <span>API: <code style="font-family: monospace;">Region.get_details()</code></span>
+                                </div>
+                                <h4>Provinces associées (Composition) :</h4>
+                                <table style="margin-top: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Chef-lieu</th>
+                                            <th>Province</th>
+                                            <th>Historique Sinistres</th>
+                                            <th style="text-align: right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Bobo-Dioulasso</td>
+                                            <td><strong>Houet</strong></td>
+                                            <td>Inondation (2022)</td>
+                                            <td style="text-align: right;">
+                                                <button class="btn btn-secondary analyst-element" style="padding: 4px 8px; font-size: 11px;">+ Sinistre</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Orodara</td>
+                                            <td><strong>Kénédougou</strong></td>
+                                            <td>Sécheresse précoce (2020)</td>
+                                            <td style="text-align: right;">
+                                                <button class="btn btn-secondary analyst-element" style="padding: 4px 8px; font-size: 11px;">+ Sinistre</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Region 2 -->
+                        <div class="region-card-item">
+                            <div class="region-card-header" onclick="toggleRegion(this)">
+                                <div>
+                                    <strong style="font-size: 16px;">Sahel</strong>
+                                    <span style="font-size: 12px; color: var(--text-muted); margin-left: 15px;">Habitants: 1 350 000 | Superficie: 35 300 km²</span>
+                                </div>
+                                <span style="font-size: 14px; color: var(--warning); font-weight: bold;">Densité: 38.2 hab/km²</span>
+                            </div>
+                            <div class="region-card-body">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; color: var(--text-muted);">
+                                    <span>Vulnérabilité de base : Élevée</span>
+                                    <span>API: <code style="font-family: monospace;">Region.get_details()</code></span>
+                                </div>
+                                <h4>Provinces associées (Composition) :</h4>
+                                <table style="margin-top: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Chef-lieu</th>
+                                            <th>Province</th>
+                                            <th>Historique Sinistres</th>
+                                            <th style="text-align: right;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Dori</td>
+                                            <td><strong>Seno</strong></td>
+                                            <td>Sécheresse (2021), Attaque ravageurs (2023)</td>
+                                            <td style="text-align: right;">
+                                                <button class="btn btn-secondary analyst-element" style="padding: 4px 8px; font-size: 11px;">+ Sinistre</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gorom-Gorom</td>
+                                            <td><strong>Oudalan</strong></td>
+                                            <td>Sécheresse récurrente</td>
+                                            <td style="text-align: right;">
+                                                <button class="btn btn-secondary analyst-element" style="padding: 4px 8px; font-size: 11px;">+ Sinistre</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add region (Analyst only) -->
+                <div class="card analyst-element">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="card-title">Ajouter une Région</span>
+                        <div class="badge-endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            /api/regions
+                        </div>
+                    </div>
+                    <form onsubmit="event.preventDefault(); alert('Région créée via POST /api/regions');">
+                        <div class="form-group">
+                            <label for="reg-nom">Nom de la Région</label>
+                            <input type="text" id="reg-nom" placeholder="Ex: Boucle du Mouhoun" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-pop">Population</label>
+                            <input type="number" id="reg-pop" placeholder="Habitants" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-sup">Superficie (km²)</label>
+                            <input type="number" step="0.1" id="reg-sup" placeholder="Superficie" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-vul">Vulnérabilité de Base</label>
+                            <select id="reg-vul">
+                                <option value="Faible">Faible</option>
+                                <option value="Moyenne">Moyenne</option>
+                                <option value="Élevée">Élevée</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer la Région</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: CEREALES -->
+        <div id="tab-cereales" class="tab-content">
+            <header>
+                <div class="header-title">
+                    <h2>Référentiel des Céréales</h2>
+                    <p>Catalogue des spéculations cultivées et besoins hydriques associés</p>
+                </div>
+                <div class="badge-endpoint">
+                    <span class="endpoint-method method-get">GET</span>
+                    /api/cereales
+                </div>
+            </header>
+
+            <div class="dashboard-row" style="grid-template-columns: 2fr 1fr;">
+                <div class="cereal-grid">
+                    <!-- Maïs -->
+                    <div class="cereal-card">
+                        <div class="cereal-avatar">🌽</div>
+                        <h3>Maïs</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">Cycle: <strong>90 - 110 jours</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted);">Besoin: <strong>600 mm</strong></p>
+                    </div>
+                    <!-- Sorgho -->
+                    <div class="cereal-card">
+                        <div class="cereal-avatar">🌾</div>
+                        <h3>Sorgho</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">Cycle: <strong>110 - 130 jours</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted);">Besoin: <strong>450 mm</strong></p>
+                    </div>
+                    <!-- Mil -->
+                    <div class="cereal-card">
+                        <div class="cereal-avatar">🌾</div>
+                        <h3>Mil</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">Cycle: <strong>80 - 100 jours</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted);">Besoin: <strong>350 mm</strong></p>
+                    </div>
+                    <!-- Riz -->
+                    <div class="cereal-card">
+                        <div class="cereal-avatar">🍚</div>
+                        <h3>Riz</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">Cycle: <strong>120 - 140 jours</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted);">Besoin: <strong>800 mm</strong></p>
+                    </div>
+                </div>
+
+                <!-- Add cereal (Analyst only) -->
+                <div class="card analyst-element">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="card-title">Ajouter une Céréale</span>
+                        <div class="badge-endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            /api/cereales
+                        </div>
+                    </div>
+                    <form onsubmit="event.preventDefault(); alert('Céréale enregistrée via POST /api/cereales');">
+                        <div class="form-group">
+                            <label for="cer-nom">Nom de la céréale</label>
+                            <input type="text" id="cer-nom" placeholder="Ex: Fonio" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cer-cycle">Cycle de maturation</label>
+                            <input type="text" id="cer-cycle" placeholder="Ex: 80-90 jours" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cer-eau">Besoin hydrique théorique (mm)</label>
+                            <input type="number" step="0.1" id="cer-eau" placeholder="Ex: 400" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Ajouter au Référentiel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SAISIE PRODUCTIONS -->
+        <div id="tab-saisie" class="tab-content">
+            <header>
+                <div class="header-title">
+                    <h2>Saisie des Productions Annuelles</h2>
+                    <p>Enregistrement des rendements par Province et par Spéculation</p>
+                </div>
+                <div class="badge-endpoint">
+                    <span class="endpoint-method method-post">POST</span>
+                    /api/campagnes/{annee}/productions
+                </div>
+            </header>
+
+            <div class="analyst-only-notice" id="notice-saisie-read">
+                <span>🔒 Consultation seule. Basculez en mode <strong>Administrateur</strong> pour saisir des productions.</span>
+            </div>
+
+            <div class="dashboard-row" style="grid-template-columns: 1fr 2fr;">
+                <!-- Form (Analyst only) -->
+                <div class="card analyst-element" id="production-form-card">
+                    <span class="card-title" style="display: block; margin-bottom: 20px;">Nouvelle Production Annuelle</span>
+                    <form id="prod-form">
+                        <div class="form-group">
+                            <label for="prod-province">Province concernée (Agrégation)</label>
+                            <select id="prod-province" required>
+                                <option value="Houet">Houet (Hauts-Bassins)</option>
+                                <option value="Kénédougou">Kénédougou (Hauts-Bassins)</option>
+                                <option value="Seno">Seno (Sahel)</option>
+                                <option value="Oudalan">Oudalan (Sahel)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-cereale">Céréale (Agrégation)</label>
+                            <select id="prod-cereale" required>
+                                <option value="Maïs">Maïs</option>
+                                <option value="Sorgho">Sorgho</option>
+                                <option value="Mil">Mil</option>
+                                <option value="Riz">Riz</option>
+                            </select>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="prod-sup">Superficie (ha)</label>
+                                <input type="number" step="0.1" id="prod-sup" placeholder="ha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-recolte">Récolte (tonnes)</label>
+                                <input type="number" step="0.1" id="prod-recolte" placeholder="T" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Rendement estimé</label>
+                            <input type="text" id="prod-rendement-calc" readonly value="0 T/ha" style="background-color: var(--background); font-weight: bold; color: var(--primary-dark);">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer la Production</button>
+                    </form>
+                </div>
+
+                <!-- Recent Entries table -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Production de la Campagne 2025</span>
+                        <div class="badge-endpoint">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/campagnes/{annee}
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Province</th>
+                                <th>Céréale</th>
+                                <th>Superficie (ha)</th>
+                                <th>Récolte (T)</th>
+                                <th>Rendement</th>
+                                <th class="analyst-element" style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="production-table-body">
+                            <!-- Raw 1 -->
+                            <tr>
+                                <td>Houet</td>
+                                <td><strong>Maïs</strong></td>
+                                <td>150 000</td>
+                                <td>380 000</td>
+                                <td><strong>2.53 T/ha</strong></td>
+                                <td class="analyst-element" style="text-align: right;"><button class="btn btn-secondary" style="padding: 4px 8px; color: var(--danger); font-size: 11px;">Supprimer</button></td>
+                            </tr>
+                            <!-- Raw 2 -->
+                            <tr>
+                                <td>Kénédougou</td>
+                                <td><strong>Sorgho</strong></td>
+                                <td>90 000</td>
+                                <td>170 000</td>
+                                <td><strong>1.89 T/ha</strong></td>
+                                <td class="analyst-element" style="text-align: right;"><button class="btn btn-secondary" style="padding: 4px 8px; color: var(--danger); font-size: 11px;">Supprimer</button></td>
+                            </tr>
+                            <!-- Raw 3 -->
+                            <tr>
+                                <td>Oudalan</td>
+                                <td><strong>Mil</strong></td>
+                                <td>40 000</td>
+                                <td>15 000</td>
+                                <td><strong style="color: var(--danger);">0.38 T/ha</strong></td>
+                                <td class="analyst-element" style="text-align: right;"><button class="btn btn-secondary" style="padding: 4px 8px; color: var(--danger); font-size: 11px;">Supprimer</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: ANALYSES & KPIS -->
+        <div id="tab-analyses" class="tab-content">
+            <header>
+                <div class="header-title">
+                    <h2>Analyseur Statistique de Performance</h2>
+                    <p>Calcul des indices globaux et détection automatique des vulnérabilités régionales</p>
+                </div>
+                <div class="badge-endpoint">
+                    <span class="endpoint-method method-get">GET</span>
+                    /api/analyses/{annee}/*
+                </div>
+            </header>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px;">
+                <!-- Actions Box -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Action 1 -->
+                    <div class="card">
+                        <h4 style="font-size: 15px; margin-bottom: 8px;">1. Rendement Moyen & Couverture</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Calcule les KPIs globaux par rapport à la population totale active.</p>
+                        <div class="badge-endpoint" style="margin-bottom: 12px;">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/analyses/{annee}/kpis
+                        </div>
+                        <button class="btn btn-primary" onclick="calculerKPIs()">Lancer le Calcul</button>
+                    </div>
+
+                    <!-- Action 2 -->
+                    <div class="card">
+                        <h4 style="font-size: 15px; margin-bottom: 8px;">2. Zones de Déficit Alimentaire</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Identifie les provinces déficitaires et les zones prioritaires d'intervention.</p>
+                        <div class="badge-endpoint" style="margin-bottom: 12px;">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/analyses/{annee}/deficit-zones
+                        </div>
+                        <button class="btn btn-primary" onclick="identifierDeficits()">Détecter les Zones</button>
+                    </div>
+
+                    <!-- Action 3 -->
+                    <div class="card">
+                        <h4 style="font-size: 15px; margin-bottom: 8px;">3. Rapport de Synthèse</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Génère le document de synthèse complet pour le Ministère.</p>
+                        <div class="badge-endpoint" style="margin-bottom: 12px;">
+                            <span class="endpoint-method method-get">GET</span>
+                            /api/analyses/{annee}/rapport
+                        </div>
+                        <button class="btn btn-primary" onclick="genererRapport()">Générer le Rapport</button>
+                    </div>
+                </div>
+
+                <!-- Report Terminal Output -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span class="card-title">Console de Restitution Statistique</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="clearTerminal()">Effacer</button>
+                    </div>
+                    <div class="terminal-box" id="terminal-log">> Sélectionnez une action statistique à lancer sur la gauche...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: CAMPAGNES -->
+        <div id="tab-campagnes" class="tab-content">
+            <header>
+                <div class="header-title">
+                    <h2>Gestion des Campagnes Agricoles</h2>
+                    <p>Création, modification et suivi des campagnes annuelles</p>
+                </div>
+                <button class="btn btn-primary analyst-element" onclick="openAddCampagneModal()" id="btn-add-campagne">+ Nouvelle Campagne</button>
+            </header>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Liste des Campagnes</span>
+                    <span style="font-size:13px;color:var(--text-muted);">Toutes les saisons agricoles enregistrées</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Année</th>
+                            <th>Climat Général</th>
+                            <th>Productions</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campagnes-table-body">
+                        <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:30px;">Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL CRUD UNIVERSEL -->
+    <div class="modal-overlay" id="crud-modal" onclick="handleModalOverlayClick(event)">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-title">Formulaire</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <form id="modal-form">
+                <div id="modal-fields"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="modal-submit-btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE JAVASCRIPT -->
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        const token    = localStorage.getItem('agristat_token');
+        const username = localStorage.getItem('agristat_username');
+        const role     = localStorage.getItem('agristat_role');
+
+        // ==========================================
+        // INITIALISATION AU CHARGEMENT
+        // ==========================================
+        (async () => {
+            if (!token) { window.location.href = 'login.html'; return; }
+            try {
+                const r = await fetch(`${API_BASE}/api/auth/me`, { headers: { 'x-token': token } });
+                if (!r.ok) { window.location.href = 'login.html'; return; }
+                document.getElementById('user-name').textContent = username || '—';
+                document.getElementById('user-role').textContent = role === 'analyste' ? '✏️ Analyste' : '👁 Visualisateur';
+                updateRoleView();
+                await Promise.all([
+                    loadDashboard(),
+                    loadCampagnesSelect(),
+                    loadCampagnesTab(),
+                    loadRegions(),
+                    loadCerealesCards(),
+                    loadProvincesSelect(),
+                    loadProductionsTable()
+                ]);
+            } catch (e) {
+                console.error(e);
+                window.location.href = 'login.html';
+            }
+        })();
+
+        // ==========================================
+        // AUTHENTIFICATION
+        // ==========================================
+        async function doLogout() {
+            await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', headers: { 'x-token': token || '' } }).catch(() => {});
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // ==========================================
+        // NAVIGATION
+        // ==========================================
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(n => n.classList.remove('active'));
+                tabContents.forEach(t => t.classList.remove('active'));
+                item.classList.add('active');
+                document.getElementById(item.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        function toggleRegion(element) {
+            const body = element.nextElementSibling;
+            body.classList.toggle('active');
+        }
+
+        function updateRoleView() {
+            const isAnalyst = localStorage.getItem('agristat_role') === 'analyste';
+            document.querySelectorAll('.analyst-element').forEach(el => {
+                el.style.display = isAnalyst ? 'block' : 'none';
+            });
+            const formCard = document.getElementById('production-form-card');
+            if (formCard) formCard.style.display = isAnalyst ? 'block' : 'none';
+            const noticeSaisieRead = document.getElementById('notice-saisie-read');
+            if (noticeSaisieRead) noticeSaisieRead.classList.toggle('hidden', isAnalyst);
+        }
+
+        // ==========================================
+        // HELPER : appel API avec token
+        // ==========================================
+        async function apiFetch(url, options = {}) {
+            const headers = { 'Content-Type': 'application/json', 'x-token': token || '', ...(options.headers || {}) };
+            const resp = await fetch(`${API_BASE}${url}`, { ...options, headers });
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+                throw new Error(err.detail || resp.statusText);
+            }
+            return resp.json();
+        }
+
+        function formatNumber(n) {
+            return Math.round(n || 0).toLocaleString('fr-FR');
+        }
+
+        // ==========================================
+        // DASHBOARD — KPIs et graphiques réels
+        // ==========================================
+        async function loadDashboard() {
+            const campagneId = getCampagneId();
+            try {
+                const [kpi, alertes, cerealesData] = await Promise.all([
+                    apiFetch(`/api/dashboard/kpi?campagne_id=${campagneId}`),
+                    apiFetch(`/api/analyses/alertes?campagne_id=${campagneId}`),
+                    apiFetch(`/api/dashboard/repartition-cereales?campagne_id=${campagneId}`)
+                ]);
+                // KPIs
+                document.getElementById('kpi-prod-totale').textContent = formatNumber(kpi.production_totale) + ' T';
+                document.getElementById('kpi-rendement').textContent = kpi.rendement_moyen + ' T/ha';
+                const besoinNational = 23000000 * 0.190;
+                const taux = Math.min(100, ((kpi.production_totale / besoinNational) * 100)).toFixed(1);
+                document.getElementById('kpi-couverture').textContent = taux + ' %';
+                document.getElementById('kpi-deficits').textContent = alertes.length;
+                // Alertes
+                renderAlertesCard(alertes);
+                // Graphique
+                renderBarChart(cerealesData.labels, cerealesData.data);
+            } catch(e) {
+                console.error('Erreur chargement dashboard:', e);
+            }
+        }
+
+        function getCampagneId() {
+            const select = document.getElementById('campagne-select');
+            const option = select?.options[select?.selectedIndex];
+            if (option && option.dataset.id) return parseInt(option.dataset.id);
+            // Fallback : map année → id (2023=1, 2024=2, 2025=3)
+            const map = {'2023': 1, '2024': 2, '2025': 3};
+            return map[select?.value] || 3;
+        }
+
+        document.getElementById('campagne-select').addEventListener('change', () => {
+            loadDashboard();
+            loadProductionsTable();
+        });
+
+        function renderAlertesCard(alertes) {
+            const cards = document.querySelectorAll('.dashboard-row');
+            let alertContainer = null;
+            cards.forEach(row => {
+                const lastCard = row.querySelector('.card:last-child > div:last-child');
+                if (lastCard && lastCard.querySelector('.status-badge')) alertContainer = lastCard;
+            });
+            // Find the second card in first dashboard-row
+            const firstRow = document.querySelector('#tab-dashboard .dashboard-row');
+            if (!firstRow) return;
+            const secondCard = firstRow.querySelector('.card:last-child');
+            if (!secondCard) return;
+            const innerDiv = secondCard.querySelector('div:last-child');
+            if (!innerDiv) return;
+            innerDiv.innerHTML = '';
+            if (alertes.length === 0) {
+                innerDiv.innerHTML = '<p style="color: var(--primary); font-size: 14px; text-align: center; padding: 20px;">✅ Aucune zone critique</p>';
+                return;
+            }
+            alertes.forEach(z => {
+                const isCrit = z.statut === 'Critique';
+                const color = isCrit ? 'var(--danger)' : 'var(--warning)';
+                const bg    = isCrit ? 'var(--danger-light)' : 'var(--warning-light)';
+                innerDiv.innerHTML += `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background-color:${bg};border-radius:8px;">
+                        <div>
+                            <strong style="font-size:14px;color:${color};">${z.province}</strong>
+                            <div style="font-size:11px;color:var(--text-muted)">Région: ${z.region}</div>
+                        </div>
+                        <span class="status-badge" style="background-color:${bg};color:${color};">${z.statut} (${z.taux_couverture})</span>
+                    </div>`;
+            });
+        }
+
+        function renderBarChart(labels, data) {
+            const container = document.querySelector('#tab-dashboard .chart-container');
+            if (!container) return;
+            const maxVal = Math.max(...data, 1);
+            container.innerHTML = '';
+            labels.forEach((label, i) => {
+                const pct = Math.round((data[i] / maxVal) * 88) + 5;
+                const formattedVal = data[i] >= 1000 ? (data[i]/1000).toFixed(0)+'K' : data[i];
+                container.innerHTML += `
+                    <div class="chart-bar-wrapper">
+                        <div class="chart-bar" style="height:${pct}%;">
+                            <div class="chart-bar-value">${formattedVal}</div>
+                        </div>
+                        <span class="chart-bar-label">${label}</span>
+                    </div>`;
+            });
+        }
+
+        // ==========================================
+        // CAMPAGNES — select sidebar + onglet CRUD
+        // ==========================================
+        async function loadCampagnesSelect() {
+            try {
+                const campagnes = await apiFetch('/api/gestion/campagnes');
+                const select = document.getElementById('campagne-select');
+                select.innerHTML = '';
+                campagnes.sort((a, b) => b.annee - a.annee).forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.annee;
+                    opt.dataset.id = c.id_campagne;
+                    opt.textContent = `Campagne ${c.annee} — ${c.climat_general || ''}`;
+                    if (c.annee === 2025) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            } catch(e) { console.error('Erreur campagnes:', e); }
+        }
+
+        async function loadCampagnesTab() {
+            try {
+                const [campagnes, productions] = await Promise.all([
+                    apiFetch('/api/gestion/campagnes'),
+                    apiFetch('/api/gestion/productions')
+                ]);
+                const tbody = document.getElementById('campagnes-table-body');
+                if (!tbody) return;
+                const isAnalyst = role === 'analyste';
+                tbody.innerHTML = '';
+                campagnes.sort((a, b) => b.annee - a.annee).forEach(c => {
+                    const nbProds = productions.filter(p => p.id_campagne === c.id_campagne).length;
+                    const climatColor = c.climat_general === 'Bon' ? 'var(--primary-dark)' : c.climat_general === 'Déficitaire' ? 'var(--danger)' : 'var(--warning)';
+                    const climatBg = c.climat_general === 'Bon' ? 'var(--primary-light)' : c.climat_general === 'Déficitaire' ? 'var(--danger-light)' : 'var(--warning-light)';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong style="font-size:16px;">${c.annee}</strong></td>
+                            <td><span style="padding:3px 10px;border-radius:9999px;background:${climatBg};color:${climatColor};font-size:12px;font-weight:600;">${c.climat_general || '—'}</span></td>
+                            <td><span style="font-size:14px;">${nbProds} enregistrement(s)</span></td>
+                            <td>
+                                <div class="campagne-table-actions">
+                                    ${isAnalyst ? `
+                                    <button class="btn-icon edit" onclick="openEditCampagneModal(${c.id_campagne}, '${c.annee}', '${c.climat_general || ''}')" title="Modifier">✏️ Modifier</button>
+                                    <button class="btn-icon danger" onclick="deleteCampagne(${c.id_campagne})" title="Supprimer">🗑️ Supprimer</button>
+                                    ` : '<span style="color:var(--text-muted);font-size:13px;">Lecture seule</span>'}
+                                </div>
+                            </td>
+                        </tr>`;
+                });
+                if (campagnes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:30px;">Aucune campagne enregistrée</td></tr>';
+                }
+            } catch(e) { console.error('Erreur onglet campagnes:', e); }
+        }
+
+        function openAddCampagneModal() {
+            openModal({
+                title: '📅 Nouvelle Campagne Agricole',
+                submitLabel: 'Créer la campagne',
+                fields: [
+                    { id: 'annee', label: 'Année', type: 'number', placeholder: '2026', required: true },
+                    { id: 'climat_general', label: 'Climat Général', type: 'select',
+                      options: ['Bon', 'Moyen', 'Déficitaire', 'Prévisions favorables'], required: false }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch('/api/gestion/campagnes', {
+                        method: 'POST',
+                        body: JSON.stringify({ annee: parseInt(data.annee), climat_general: data.climat_general })
+                    });
+                    await Promise.all([loadCampagnesTab(), loadCampagnesSelect()]);
+                }
+            });
+        }
+
+        function openEditCampagneModal(id, annee, climat) {
+            openModal({
+                title: '✏️ Modifier la Campagne',
+                submitLabel: 'Enregistrer',
+                fields: [
+                    { id: 'annee', label: 'Année', type: 'number', value: annee, required: true },
+                    { id: 'climat_general', label: 'Climat Général', type: 'select',
+                      options: ['Bon', 'Moyen', 'Déficitaire', 'Prévisions favorables'],
+                      value: climat, required: false }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch(`/api/gestion/campagnes/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ annee: parseInt(data.annee), climat_general: data.climat_general })
+                    });
+                    await Promise.all([loadCampagnesTab(), loadCampagnesSelect()]);
+                }
+            });
+        }
+
+        async function deleteCampagne(id) {
+            if (!confirm('Supprimer cette campagne ? Toutes ses productions seront également supprimées !')) return;
+            try {
+                await apiFetch(`/api/gestion/campagnes/${id}`, { method: 'DELETE' });
+                await Promise.all([loadCampagnesTab(), loadCampagnesSelect(), loadProductionsTable(), loadDashboard()]);
+            } catch(e) { alert('❌ Erreur: ' + e.message); }
+        }
+
+        // ==========================================
+        // RÉGIONS — chargement dynamique depuis API
+        // ==========================================
+        async function loadRegions() {
+            try {
+                const [regions, provinces] = await Promise.all([
+                    apiFetch('/api/gestion/regions'),
+                    apiFetch('/api/gestion/provinces')
+                ]);
+                renderRegionsList(regions, provinces);
+            } catch(e) { console.error('Erreur régions:', e); }
+        }
+
+        function renderRegionsList(regions, provinces) {
+            const container = document.querySelector('.region-card-list');
+            if (!container) return;
+            container.innerHTML = '';
+            const isAnalyst = role === 'analyste';
+            regions.forEach(r => {
+                const rProvinces = provinces.filter(p => p.id_region === r.id_region);
+                const densite = r.superficie > 0 ? (r.population_totale / r.superficie).toFixed(1) : '—';
+                const rows = rProvinces.map(p => `
+                    <tr>
+                        <td>${p.chef_lieu || '—'}</td>
+                        <td><strong>${p.nom_province}</strong></td>
+                        <td>${p.historique_sinistres || 'Aucun'}</td>
+                        <td style="text-align:right;">
+                            ${isAnalyst ? `
+                            <button class="btn-icon edit" onclick="openEditProvinceModal(${p.id_province}, ${p.id_region}, '${(p.nom_province||'').replace(/'/g,'\\&apos;')}', '${(p.chef_lieu||'').replace(/'/g,'\\&apos;')}', '${(p.historique_sinistres||'').replace(/'/g,'\\&apos;')}')" style="margin-right:4px;">✏️</button>
+                            <button class="btn-icon danger" onclick="deleteProvince(${p.id_province})">🗑️</button>` : ''}
+                        </td>
+                    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Aucune province enregistrée</td></tr>';
+                const analysteActions = isAnalyst ? `
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn-icon edit" onclick="openEditRegionModal(${r.id_region}, '${(r.nom_region||'').replace(/'/g,'\\&apos;')}', ${r.population_totale}, ${r.superficie})">✏️ Modifier</button>
+                        <button class="btn-icon success" onclick="openAddProvinceModal(${r.id_region})">+ Province</button>
+                        <button class="btn-icon danger" onclick="deleteRegion(${r.id_region})">🗑️</button>
+                    </div>` : `<span style="font-size:14px;color:var(--primary-dark);font-weight:bold;">Densité: ${densite} hab/km²</span>`;
+                container.innerHTML += `
+                    <div class="region-card-item">
+                        <div class="region-card-header" onclick="toggleRegion(this)">
+                            <div>
+                                <strong style="font-size:16px;">${r.nom_region}</strong>
+                                <span style="font-size:12px;color:var(--text-muted);margin-left:15px;">Habitants: ${formatNumber(r.population_totale)} | Superficie: ${formatNumber(r.superficie)} km² | Densité: ${densite} hab/km²</span>
+                            </div>
+                            ${analysteActions}
+                        </div>
+                        <div class="region-card-body">
+                            <h4>Provinces associées :</h4>
+                            <table style="margin-top:10px;">
+                                <thead><tr><th>Chef-lieu</th><th>Province</th><th>Historique Sinistres</th><th style="text-align:right;">Actions</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // --- CRUD RÉGIONS ---
+        function openEditRegionModal(id, nom, pop, sup) {
+            openModal({
+                title: '✏️ Modifier la Région',
+                submitLabel: 'Enregistrer',
+                fields: [
+                    { id: 'nom_region', label: 'Nom de la Région', type: 'text', value: nom, required: true },
+                    { id: 'population_totale', label: 'Population', type: 'number', value: pop, required: true },
+                    { id: 'superficie', label: 'Superficie (km²)', type: 'number', value: sup, step: '0.1', required: true }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch(`/api/gestion/regions/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ nom_region: data.nom_region, population_totale: parseInt(data.population_totale), superficie: parseFloat(data.superficie) })
+                    });
+                    loadRegions();
+                }
+            });
+        }
+
+        async function deleteRegion(id) {
+            if (!confirm('Supprimer cette région ? Toutes ses provinces seront également supprimées !')) return;
+            try {
+                await apiFetch(`/api/gestion/regions/${id}`, { method: 'DELETE' });
+                loadRegions();
+            } catch(e) { alert('❌ Erreur: ' + e.message); }
+        }
+
+        // --- CRUD PROVINCES ---
+        function openAddProvinceModal(idRegion) {
+            openModal({
+                title: '➕ Ajouter une Province',
+                submitLabel: 'Créer la province',
+                fields: [
+                    { id: 'nom_province', label: 'Nom de la Province', type: 'text', placeholder: 'Ex: Kossi', required: true },
+                    { id: 'chef_lieu', label: 'Chef-lieu', type: 'text', placeholder: 'Ex: Nouna', required: false },
+                    { id: 'historique_sinistres', label: 'Historique des sinistres', type: 'text', placeholder: 'Ex: Sécheresse 2023', required: false }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch('/api/gestion/provinces', {
+                        method: 'POST',
+                        body: JSON.stringify({ id_region: idRegion, nom_province: data.nom_province, chef_lieu: data.chef_lieu, historique_sinistres: data.historique_sinistres })
+                    });
+                    loadRegions();
+                    loadProvincesSelect();
+                }
+            });
+        }
+
+        function openEditProvinceModal(id, idRegion, nom, chefLieu, historique) {
+            openModal({
+                title: '✏️ Modifier la Province',
+                submitLabel: 'Enregistrer',
+                fields: [
+                    { id: 'nom_province', label: 'Nom de la Province', type: 'text', value: nom, required: true },
+                    { id: 'chef_lieu', label: 'Chef-lieu', type: 'text', value: chefLieu, required: false },
+                    { id: 'historique_sinistres', label: 'Historique des sinistres', type: 'text', value: historique, required: false }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch(`/api/gestion/provinces/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ nom_province: data.nom_province, chef_lieu: data.chef_lieu, historique_sinistres: data.historique_sinistres })
+                    });
+                    loadRegions();
+                    loadProvincesSelect();
+                }
+            });
+        }
+
+        async function deleteProvince(id) {
+            if (!confirm('Supprimer cette province ?')) return;
+            try {
+                await apiFetch(`/api/gestion/provinces/${id}`, { method: 'DELETE' });
+                loadRegions();
+                loadProvincesSelect();
+            } catch(e) { alert('❌ Erreur: ' + e.message); }
+        }
+
+        // Formulaire ajout région (form statique dans l'onglet)
+        document.querySelector('#tab-regions form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await apiFetch('/api/gestion/regions', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nom_region: document.getElementById('reg-nom').value,
+                        population_totale: parseInt(document.getElementById('reg-pop').value),
+                        superficie: parseFloat(document.getElementById('reg-sup').value)
+                    })
+                });
+                alert('✅ Région créée avec succès !');
+                e.target.reset();
+                loadRegions();
+            } catch(err) { alert('❌ Erreur: ' + err.message); }
+        });
+
+        // ==========================================
+        // CÉRÉALES — chargement dynamique depuis API
+        // ==========================================
+        const CEREAL_EMOJIS = { 'Maïs': '🌽', 'Sorgho': '🌾', 'Mil': '🌾', 'Riz': '🍚' };
+
+        async function loadCerealesCards() {
+            try {
+                const cereales = await apiFetch('/api/gestion/cereales');
+                renderCerealesGrid(cereales);
+                loadCerealesSelect(cereales);
+            } catch(e) { console.error('Erreur céréales:', e); }
+        }
+
+        function renderCerealesGrid(cereales) {
+            const grid = document.querySelector('.cereal-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const isAnalyst = role === 'analyste';
+            cereales.forEach(c => {
+                const analysteActions = isAnalyst ? `
+                    <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;">
+                        <button class="btn-icon edit" style="font-size:12px;" onclick="openEditCerealeModal(${c.id_cereale}, '${(c.nom_cereale||'').replace(/'/g,'\\&apos;')}', '${(c.cycle_maturation||'').replace(/'/g,'\\&apos;')}', '${(c.besoin_hydrique||'').replace(/'/g,'\\&apos;')}')">✏️ Modifier</button>
+                        <button class="btn-icon danger" style="font-size:12px;" onclick="deleteCereale(${c.id_cereale})">🗑️ Suppr.</button>
+                    </div>` : '';
+                grid.innerHTML += `
+                    <div class="cereal-card">
+                        <div class="cereal-avatar">${CEREAL_EMOJIS[c.nom_cereale] || '🌾'}</div>
+                        <h3>${c.nom_cereale}</h3>
+                        <p style="font-size:13px;color:var(--text-muted);">Cycle: <strong>${c.cycle_maturation || '—'}</strong></p>
+                        <p style="font-size:13px;color:var(--text-muted);">Besoin: <strong>${c.besoin_hydrique || '—'}</strong></p>
+                        ${analysteActions}
+                    </div>`;
+            });
+        }
+
+        function loadCerealesSelect(cereales) {
+            const select = document.getElementById('prod-cereale');
+            if (!select) return;
+            select.innerHTML = '';
+            (cereales || []).forEach(c => {
+                select.innerHTML += `<option value="${c.id_cereale}">${c.nom_cereale}</option>`;
+            });
+        }
+
+        function openEditCerealeModal(id, nom, cycle, besoin) {
+            openModal({
+                title: '✏️ Modifier la Céréale',
+                submitLabel: 'Enregistrer',
+                fields: [
+                    { id: 'nom_cereale', label: 'Nom de la céréale', type: 'text', value: nom, required: true },
+                    { id: 'cycle_maturation', label: 'Cycle de maturation', type: 'text', value: cycle, placeholder: 'Ex: 90-110 jours' },
+                    { id: 'besoin_hydrique', label: 'Besoin hydrique', type: 'text', value: besoin, placeholder: 'Ex: 600 mm' }
+                ],
+                onSubmit: async (data) => {
+                    await apiFetch(`/api/gestion/cereales/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ nom_cereale: data.nom_cereale, cycle_maturation: data.cycle_maturation, besoin_hydrique: data.besoin_hydrique })
+                    });
+                    loadCerealesCards();
+                }
+            });
+        }
+
+        async function deleteCereale(id) {
+            if (!confirm('Supprimer cette céréale ?')) return;
+            try {
+                await apiFetch(`/api/gestion/cereales/${id}`, { method: 'DELETE' });
+                loadCerealesCards();
+            } catch(e) { alert('❌ Erreur: ' + e.message); }
+        }
+
+        document.querySelector('#tab-cereales form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await apiFetch('/api/gestion/cereales', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nom_cereale: document.getElementById('cer-nom').value,
+                        cycle_maturation: document.getElementById('cer-cycle').value,
+                        besoin_hydrique: document.getElementById('cer-eau').value + ' mm'
+                    })
+                });
+                alert('✅ Céréale ajoutée avec succès !');
+                e.target.reset();
+                loadCerealesCards();
+            } catch(err) { alert('❌ Erreur: ' + err.message); }
+        });
+
+        // ==========================================
+        // PROVINCES — select dynamique pour le formulaire
+        // ==========================================
+        async function loadProvincesSelect() {
+            try {
+                const provinces = await apiFetch('/api/gestion/provinces');
+                const select = document.getElementById('prod-province');
+                if (!select) return;
+                select.innerHTML = '';
+                provinces.forEach(p => {
+                    select.innerHTML += `<option value="${p.id_province}">${p.nom_province}</option>`;
+                });
+            } catch(e) { console.error('Erreur provinces select:', e); }
+        }
+
+        // ==========================================
+        // PRODUCTIONS — chargement & soumission
+        // ==========================================
+        async function loadProductionsTable() {
+            try {
+                const campagneId = getCampagneId();
+                const [productions, provinces, cereales] = await Promise.all([
+                    apiFetch('/api/gestion/productions'),
+                    apiFetch('/api/gestion/provinces'),
+                    apiFetch('/api/gestion/cereales')
+                ]);
+                const provMap = Object.fromEntries(provinces.map(p => [p.id_province, p.nom_province]));
+                const cerMap  = Object.fromEntries(cereales.map(c => [c.id_cereale,  c.nom_cereale]));
+                const filtered = productions.filter(p => p.id_campagne === campagneId);
+                renderProductionsTable(filtered, provMap, cerMap);
+            } catch(e) { console.error('Erreur productions:', e); }
+        }
+
+        function renderProductionsTable(prods, provMap, cerMap) {
+            const tbody = document.getElementById('production-table-body');
+            if (!tbody) return;
+            const isAnalyst = role === 'analyste';
+            tbody.innerHTML = '';
+            if (prods.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px;">Aucune production enregistrée pour cette campagne</td></tr>';
+                return;
+            }
+            prods.forEach(p => {
+                const rendement = p.superficie_emblavee > 0 ? (p.quantite_recoltee / p.superficie_emblavee).toFixed(2) : '—';
+                const rendStyle = parseFloat(rendement) < 1.0 ? 'color:var(--danger);' : '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${provMap[p.id_province] || '—'}</td>
+                        <td><strong>${cerMap[p.id_cereale] || '—'}</strong></td>
+                        <td>${formatNumber(p.superficie_emblavee)}</td>
+                        <td>${formatNumber(p.quantite_recoltee)}</td>
+                        <td><strong style="${rendStyle}">${rendement} T/ha</strong></td>
+                        <td class="analyst-element" style="text-align:right;${isAnalyst?'':'display:none;'}">
+                            <div style="display:flex;gap:4px;justify-content:flex-end;">
+                                <button class="btn-icon edit" onclick="openEditProductionModal(${p.id_production}, ${p.id_province}, ${p.id_cereale}, ${p.superficie_emblavee}, ${p.quantite_recoltee})">✏️</button>
+                                <button class="btn-icon danger" onclick="deleteProduction(${p.id_production})">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        async function deleteProduction(id) {
+            if (!confirm('Supprimer cet enregistrement de production ?')) return;
+            try {
+                await apiFetch(`/api/gestion/productions/${id}`, { method: 'DELETE' });
+                loadProductionsTable();
+                loadDashboard();
+            } catch(e) { alert('Erreur: ' + e.message); }
+        }
+
+        async function openEditProductionModal(id, idProv, idCer, sup, rec) {
+            // Charger provinces et céréales pour les selects
+            const [provinces, cereales] = await Promise.all([
+                apiFetch('/api/gestion/provinces'),
+                apiFetch('/api/gestion/cereales')
+            ]);
+            const provOptions = provinces.map(p => `<option value="${p.id_province}" ${p.id_province===idProv?'selected':''}>${p.nom_province}</option>`).join('');
+            const cerOptions  = cereales.map(c  => `<option value="${c.id_cereale}"  ${c.id_cereale===idCer ?'selected':''}>${c.nom_cereale}</option>`).join('');
+
+            const modal = document.getElementById('crud-modal');
+            document.getElementById('modal-title').textContent = '✏️ Modifier la Production';
+            document.getElementById('modal-fields').innerHTML = `
+                <div class="form-group">
+                    <label>Province</label>
+                    <select id="mf-id_province" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);">${provOptions}</select>
+                </div>
+                <div class="form-group">
+                    <label>Céréale</label>
+                    <select id="mf-id_cereale" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);">${cerOptions}</select>
+                </div>
+                <div class="form-group">
+                    <label>Superficie emblavée (ha)</label>
+                    <input type="number" id="mf-superficie_emblavee" value="${sup}" step="0.1" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);" />
+                </div>
+                <div class="form-group">
+                    <label>Quantité récoltée (T)</label>
+                    <input type="number" id="mf-quantite_recoltee" value="${rec}" step="0.1" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);" />
+                </div>`;
+            document.getElementById('modal-submit-btn').textContent = 'Enregistrer';
+            document.getElementById('modal-form').onsubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await apiFetch(`/api/gestion/productions/${id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            id_province: parseInt(document.getElementById('mf-id_province').value),
+                            id_cereale:  parseInt(document.getElementById('mf-id_cereale').value),
+                            superficie_emblavee: parseFloat(document.getElementById('mf-superficie_emblavee').value),
+                            quantite_recoltee:   parseFloat(document.getElementById('mf-quantite_recoltee').value)
+                        })
+                    });
+                    closeModal();
+                    loadProductionsTable();
+                    loadDashboard();
+                } catch(err) { alert('❌ Erreur: ' + err.message); }
+            };
+            modal.classList.add('open');
+        }
+
+        // Calcul du rendement en temps réel
+        const inputSup     = document.getElementById('prod-sup');
+        const inputRecolte = document.getElementById('prod-recolte');
+        const calcRendement = document.getElementById('prod-rendement-calc');
+
+        function updateLiveYield() {
+            const sup = parseFloat(inputSup?.value) || 0;
+            const rec = parseFloat(inputRecolte?.value) || 0;
+            if (calcRendement) calcRendement.value = sup > 0 ? `${(rec / sup).toFixed(2)} T/ha` : '0 T/ha';
+        }
+
+        inputSup?.addEventListener('input', updateLiveYield);
+        inputRecolte?.addEventListener('input', updateLiveYield);
+
+        // Formulaire saisie production — soumission réelle à l'API
+        document.getElementById('prod-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id_province = parseInt(document.getElementById('prod-province').value);
+            const id_cereale  = parseInt(document.getElementById('prod-cereale').value);
+            const sup = parseFloat(inputSup.value);
+            const rec = parseFloat(inputRecolte.value);
+            const campagneId = getCampagneId();
+            try {
+                await apiFetch('/api/gestion/productions', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id_campagne: campagneId,
+                        id_province, id_cereale,
+                        superficie_emblavee: sup,
+                        quantite_recoltee: rec
+                    })
+                });
+                alert('✅ Production enregistrée avec succès !');
+                e.target.reset();
+                if (calcRendement) calcRendement.value = '0 T/ha';
+                loadProductionsTable();
+                loadDashboard();
+            } catch(err) { alert('❌ Erreur: ' + err.message); }
+        });
+
+        // ==========================================
+        // TERMINAL — fonctions d'analyse via API réelle
+        // ==========================================
+        const terminal = document.getElementById('terminal-log');
+
+        function clearTerminal() {
+            if (terminal) terminal.innerText = '>';
+        }
+
+        async function calculerKPIs() {
+            const campagneId = getCampagneId();
+            const annee = document.getElementById('campagne-select').value;
+            if (terminal) terminal.innerText = `> [Chargement des KPIs pour la campagne ${annee}...]`;
+            try {
+                const kpi = await apiFetch(`/api/dashboard/kpi?campagne_id=${campagneId}`);
+                const besoinNational = 23000000 * 0.190;
+                const taux = ((kpi.production_totale / besoinNational) * 100).toFixed(1);
+                const statut = parseFloat(taux) >= 100 ? 'EXCÉDENTAIRE ✅' : parseFloat(taux) >= 80 ? 'INSUFFISANT ⚠️' : 'CRITIQUE 🚨';
+                terminal.innerText = `> [API GET] /api/dashboard/kpi?campagne_id=${campagneId}
+---------------------------------------
+Exécution de AnalyseurStatistique.calculer_rendement_moyen_national()...
+Calcul du Taux de Couverture (Besoins = 190 kg/hab/an × 23 000 000 hab)...
+
+Résultats — Campagne ${annee} :
+- Production Totale        : ${formatNumber(kpi.production_totale)} Tonnes
+- Superficie Emblavée      : ${formatNumber(kpi.superficie_totale)} Hectares
+- Rendement Moyen National : ${kpi.rendement_moyen} T/Ha
+- Besoins Nationaux        : ${formatNumber(Math.round(besoinNational))} Tonnes
+- Taux de Couverture       : ${taux}%
+- Statut                   : ${statut}`;
+            } catch(e) {
+                terminal.innerText = `> ❌ Erreur : ${e.message}`;
+            }
+        }
+
+        async function identifierDeficits() {
+            const campagneId = getCampagneId();
+            const annee = document.getElementById('campagne-select').value;
+            if (terminal) terminal.innerText = `> [Détection des zones déficitaires pour ${annee}...]`;
+            try {
+                const alertes = await apiFetch(`/api/analyses/alertes?campagne_id=${campagneId}`);
+                let texte = `[API GET] /api/analyses/alertes?campagne_id=${campagneId}
+---------------------------------------
+Exécution de AnalyseurStatistique.identifier_zones_deficitaires()...
+
+`;
+                if (alertes.length === 0) {
+                    texte += 'Aucune zone déficitaire détectée. ✅\n';
+                } else {
+                    texte += `${alertes.length} zone(s) de vulnérabilité détectée(s) :\n\n`;
+                    alertes.forEach((z, i) => {
+                        texte += `${i+1}. Province de ${z.province} (Région: ${z.region})\n`;
+                        texte += `   Taux de couverture : ${z.taux_couverture}\n`;
+                        texte += `   Statut             : ${z.statut.toUpperCase()}\n`;
+                        if (z.historique) texte += `   Historique         : ${z.historique}\n`;
+                        texte += '\n';
+                    });
+                }
+                terminal.innerText = `> ${texte}`;
+            } catch(e) {
+                terminal.innerText = `> ❌ Erreur : ${e.message}`;
+            }
+        }
+
+        async function genererRapport() {
+            const campagneId = getCampagneId();
+            const annee = document.getElementById('campagne-select').value;
+            if (terminal) terminal.innerText = `> [Génération du rapport de synthèse pour la campagne ${annee}...]`;
+            try {
+                const data = await apiFetch(`/api/rapports/preview?campagne_id=${campagneId}`);
+                terminal.innerText = `> [API GET] /api/rapports/preview?campagne_id=${campagneId}
+---------------------------------------
+${data.rapport}`;
+            } catch(e) {
+                terminal.innerText = `> ❌ Erreur : ${e.message}`;
+            }
+        }
+        // ==========================================
+        // MODAL UNIVERSEL
+        // ==========================================
+        let _modalSubmitHandler = null;
+
+        function openModal({ title, fields, onSubmit, submitLabel = 'Enregistrer' }) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-submit-btn').textContent = submitLabel;
+
+            const fieldsContainer = document.getElementById('modal-fields');
+            fieldsContainer.innerHTML = '';
+
+            fields.forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                const label = document.createElement('label');
+                label.textContent = f.label;
+                label.style.cssText = 'font-size:13px;font-weight:600;color:var(--text-muted);';
+                div.appendChild(label);
+
+                let input;
+                if (f.type === 'select') {
+                    input = document.createElement('select');
+                    input.style.cssText = 'width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);';
+                    (f.options || []).forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt;
+                        o.textContent = opt;
+                        if (opt === f.value) o.selected = true;
+                        input.appendChild(o);
+                    });
+                } else {
+                    input = document.createElement('input');
+                    input.type = f.type || 'text';
+                    input.style.cssText = 'width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);';
+                    if (f.value !== undefined && f.value !== null) input.value = f.value;
+                    if (f.placeholder) input.placeholder = f.placeholder;
+                    if (f.step) input.step = f.step;
+                    if (f.required) input.required = true;
+                }
+                input.id = 'mf-' + f.id;
+                input.name = f.id;
+                div.appendChild(input);
+                fieldsContainer.appendChild(div);
+            });
+
+            // Attach submit handler
+            const form = document.getElementById('modal-form');
+            if (_modalSubmitHandler) form.removeEventListener('submit', _modalSubmitHandler);
+            _modalSubmitHandler = async (e) => {
+                e.preventDefault();
+                const data = {};
+                fields.forEach(f => {
+                    data[f.id] = document.getElementById('mf-' + f.id)?.value || '';
+                });
+                try {
+                    await onSubmit(data);
+                    closeModal();
+                } catch(err) { alert('❌ Erreur: ' + err.message); }
+            };
+            form.addEventListener('submit', _modalSubmitHandler);
+
+            document.getElementById('crud-modal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('crud-modal').classList.remove('open');
+        }
+
+        function handleModalOverlayClick(e) {
+            if (e.target.id === 'crud-modal') closeModal();
+        }
+
+        // Fermer modal avec Escape
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    </script>
+</body>
+</html>

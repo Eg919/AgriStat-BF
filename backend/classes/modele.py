@@ -1,18 +1,30 @@
 import sqlite3
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'agristat.db')
+# Chemin absolu vers la base de données, peu importe d'où le script est lancé
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'database', 'agristat.db')
 
 def get_db_connection():
+    """Crée et retourne une connexion à la base de données SQLite."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 class AnalyseurStatistique:
+    """
+    Classe responsable de l'analyse statistique des données de production agricole.
+    Fournit des méthodes pour calculer des KPIs, identifier les zones déficitaires
+    et générer des rapports textuels.
+    """
     def __init__(self):
         pass
         
     def calculer_rendement_moyen_national(self, id_campagne):
+        """
+        Calcule le rendement moyen national (T/Ha) pour une campagne donnée.
+        :param id_campagne: L'identifiant de la campagne agricole.
+        :return: Le rendement moyen arrondi à 2 décimales.
+        """
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
@@ -25,6 +37,11 @@ class AnalyseurStatistique:
         return round(result['rendement_moyen'], 2) if result and result['rendement_moyen'] else 0.0
 
     def obtenir_production_totale(self, id_campagne):
+        """
+        Retourne la production totale et la superficie totale emblavée pour une campagne.
+        :param id_campagne: L'identifiant de la campagne agricole.
+        :return: Un dictionnaire avec les clés 'production' et 'superficie'.
+        """
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
@@ -40,10 +57,14 @@ class AnalyseurStatistique:
         }
 
     def identifier_zones_deficitaires(self, id_campagne):
+        """
+        Identifie les provinces en situation de déficit alimentaire pour une campagne donnée.
+        Une province est considérée en alerte si son taux de couverture est inférieur à 80%.
+        :param id_campagne: L'identifiant de la campagne agricole.
+        :return: Une liste de dictionnaires décrivant chaque zone vulnérable.
+        """
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Simulation d'un calcul de taux de couverture : 
-        # (Production / (Population de la province * 0.190)) * 100  -- 190kg/habitant/an
         cursor.execute('''
             SELECT p.nom_province, r.nom_region, 
                    SUM(prod.quantite_recoltee) as prod_totale,
@@ -57,10 +78,8 @@ class AnalyseurStatistique:
         
         zones = []
         for row in cursor.fetchall():
-            # Valeurs simulées pour la démo car on n'a pas la population par province dans le schéma (seulement région)
-            # On simule un taux de couverture basé sur le rendement
             prod = row['prod_totale']
-            # On va dire que si prod < 50000 c'est critique
+            # Taux de couverture simulé : < 50 000 T = critique, < 80 000 T = alerte
             taux = min(100, int((prod / 100000) * 100)) if prod else 0
             statut = "Critique" if taux < 60 else "Alerte" if taux < 80 else "Normal"
             
@@ -76,19 +95,21 @@ class AnalyseurStatistique:
         return zones
 
     def generer_rapport_kpi(self, id_campagne):
-        # Cette méthode génère le texte brut pour le rapport
+        """
+        Génère un rapport textuel complet avec les KPIs de la campagne.
+        :param id_campagne: L'identifiant de la campagne agricole.
+        :return: Une chaîne de caractères formatée représentant le rapport.
+        """
         stats = self.obtenir_production_totale(id_campagne)
         rendement = self.calculer_rendement_moyen_national(id_campagne)
         zones = self.identifier_zones_deficitaires(id_campagne)
         
-        # Obtenir l'année
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT annee FROM campagnes WHERE id_campagne = ?', (id_campagne,))
         annee_res = cursor.fetchone()
         annee = annee_res['annee'] if annee_res else "Inconnue"
         
-        # Obtenir répartition
         cursor.execute('''
             SELECT c.nom_cereale, SUM(p.quantite_recoltee) as qty
             FROM productions p

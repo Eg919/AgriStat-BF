@@ -1,4 +1,7 @@
-from backend.classes.modele import get_db_connection
+try:
+    from backend.classes.modele import get_db_connection
+except ImportError:
+    from classes.modele import get_db_connection
 
 class Cereale:
     """

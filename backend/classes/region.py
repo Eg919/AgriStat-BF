@@ -1,4 +1,7 @@
-from backend.classes.modele import get_db_connection
+try:
+    from backend.classes.modele import get_db_connection
+except ImportError:
+    from classes.modele import get_db_connection
 
 class Region:
     """
@@ -64,6 +67,21 @@ class Region:
         conn.commit()
         conn.close()
         return self
+
+    def get_provinces(self):
+        """
+        Récupère toutes les provinces qui composent cette région.
+        Reflète la relation de composition entre Région et Province.
+        :return: Une liste de dictionnaires représentant les provinces de la région.
+        """
+        if not self.id_region:
+            return []
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM provinces WHERE id_region = ?", (self.id_region,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [dict(row) for row in rows]
 
     def delete(self):
         """

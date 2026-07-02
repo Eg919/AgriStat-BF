@@ -1,6 +1,27 @@
-# AgriStat-BF API
+# AgriStat-BF - Plateforme de Suivi Agricole et Sécurité Alimentaire
 
-Documentation de l'API pour la plateforme AgriStat-BF.
+AgriStat-BF est une application de pair-programming POO Python & Web pour le suivi et l'analyse statistique de la production céréalière et de la sécurité alimentaire au Burkina Faso.
+
+## 🌟 Fonctionnalités Implémentées
+
+### Backend (FastAPI + SQLite + POO)
+- **Architecture Modulaire** : Classes d'accès aux données (DAOs) (`Region`, `Province`, `Cereale`, `Campagne`, `Production`) écrites en POO.
+- **Base de données robuste** : Scripts d'initialisation et structures relationnelles SQLite stables.
+- **Sécurité et Rôles** : Authentification par jeton (token session) distinguant le rôle **Analyste** (accès complet en écriture) et **Visualisateur** (lecture seule).
+- **Moteur d'analyse statistique** : Analyseur calculant la production totale, le rendement national et identifiant automatiquement les provinces en déficit alimentaire (taux de couverture < 190 kg/hab/an).
+
+### Frontend Dynamique & CRUD Complets
+- **Intégration API complète** : Plus de données fictives ou statiques. Le frontend est entièrement connecté à l'API.
+- **Tableau de bord interactif** : KPIs (Production, Rendement moyen, Taux de couverture, Nombre de zones déficitaires), graphique dynamique de répartition céréalière et liste d'alertes en temps réel.
+- **Gestion Complète (CRUD)** :
+  - **Campagnes** *(nouvel onglet)* : Liste, création, modification du climat général et suppression des campagnes.
+  - **Régions** : Édition, suppression et ajout de régions.
+  - **Provinces** : Ajout contextuel à une région, modification et suppression.
+  - **Céréales** : Ajout, modification de la fiche technique (cycle, besoin hydrique) et suppression.
+  - **Productions** : Saisie annuelle simplifiée, modification avec sélecteurs de provinces/céréales dynamiques, suppression et recalcul automatique des KPIs.
+- **Modal Universel** : Interface unifiée pour l'ensemble des créations/modifications avec validation.
+
+---
 
 ## 🚀 Installation et Démarrage
 
@@ -11,17 +32,30 @@ Ouvrez un terminal à la racine du projet et tapez :
 pip install -r requirements.txt
 ```
 
-### 2. Démarrer le serveur
+### 2. Démarrer le backend (Port 8000)
 Placez-vous dans le dossier `backend` et lancez le serveur Uvicorn :
 ```bash
 cd backend
-uvicorn main:app --reload
+python -m uvicorn main:app --reload --port 8000
 ```
 Le serveur s'exécutera localement sur : `http://127.0.0.1:8000`
+
+### 3. Démarrer le frontend (Port 8080)
+Démarrez un serveur HTTP simple à partir du dossier `frontend` :
+```bash
+cd frontend
+python -m http.server 8080
+```
+Puis accédez à l'application dans votre navigateur : **`http://127.0.0.1:8080/login.html`**
+
+### 4. Comptes de démonstration
+- **Analyste (Administrateur/CRUD)** : `admin` / `agristat2025`
+- **Lecteur (Visualisateur/Lecture seule)** : `viewer` / `viewer123`
 
 ---
 
 > 💡 **Astuce** : La façon la plus simple de tester tous ces endpoints sans Postman est d'ouvrir **http://127.0.0.1:8000/docs** dans votre navigateur. C'est une interface interactive (Swagger) qui permet de générer des requêtes en un clic.
+
 
 ### 🛠️ Guide d'utilisation de Swagger (pour les devs Frontend)
 L'interface Swagger à l'URL `/docs` est votre meilleur outil pour comprendre l'API :
@@ -32,7 +66,33 @@ L'interface Swagger à l'URL `/docs` est votre meilleur outil pour comprendre l'
 
 ---
 
-## 1. Endpoints de Gestion (CRUD)
+## 1. Endpoints d'Authentification
+
+- **Se connecter**
+  - **Méthode** : `POST`
+  - **URL** : `/api/auth/login`
+  - **Body (JSON)** :
+    ```json
+    {
+      "username": "admin",
+      "password": "agristat2025"
+    }
+    ```
+  - **Réponse** : Retourne un `token` de session et le rôle de l'utilisateur.
+
+- **Obtenir le profil courant**
+  - **Méthode** : `GET`
+  - **URL** : `/api/auth/me`
+  - **Header** : `x-token: <votre_token>`
+
+- **Se déconnecter**
+  - **Méthode** : `POST`
+  - **URL** : `/api/auth/logout`
+  - **Header** : `x-token: <votre_token>`
+
+---
+
+## 2. Endpoints de Gestion (CRUD)
 
 ### Régions
 - **Lister toutes les régions**

@@ -3,13 +3,15 @@ Fichier principal de l'application AgriStat-BF (Backend).
 Ce fichier initialise l'application FastAPI, configure les CORS, définit les schémas Pydantic 
 et expose tous les endpoints de l'API (Tableau de bord et Opérations CRUD).
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import sqlite3
 import os
 import sys
+import hashlib
+import secrets
 
 # Ajouter le répertoire parent au path pour les imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -21,6 +23,9 @@ from classes.campagne import Campagne
 from classes.production import Production
 
 app = FastAPI(title="AgriStat-BF API", description="API pour la plateforme AgriStat-BF")
+
+# Stockage des sessions en mémoire : {token: {username, role}}
+sessions: dict = {}
 
 # Configuration CORS pour permettre au frontend d'appeler l'API
 app.add_middleware(
@@ -34,7 +39,70 @@ app.add_middleware(
 analyseur = AnalyseurStatistique()
 
 # ==========================================
-# MODÈLES PYDANTIC
+# MODÈLES PYDANTIC - AUTHENTIFICATION
+# ==========================================
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    token: str
+    username: str
+    role: str
+    message: str
+
+
+# ==========================================
+# ENDPOINTS D'AUTHENTIFICATION
+# ==========================================
+
+@app.post("/api/auth/login", response_model=LoginResponse, tags=["Authentification"])
+def login(credentials: LoginRequest):
+    """Authentifie un utilisateur et retourne un token de session."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    password_hash = hashlib.sha256(credentials.password.encode()).hexdigest()
+    cursor.execute(
+        "SELECT username, role FROM users WHERE username = ? AND password_hash = ?",
+        (credentials.username, password_hash)
+    )
+    user = cursor.fetchone()
+    conn.close()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="Identifiants incorrects")
+
+    token = secrets.token_hex(32)
+    sessions[token] = {"username": user["username"], "role": user["role"]}
+
+    return LoginResponse(
+        token=token,
+        username=user["username"],
+        role=user["role"],
+        message=f"Bienvenue, {user['username']} !"
+    )
+
+
+@app.post("/api/auth/logout", tags=["Authentification"])
+def logout(x_token: Optional[str] = Header(default=None)):
+    """Déconnecte l'utilisateur en supprimant son token de session."""
+    if x_token and x_token in sessions:
+        del sessions[x_token]
+        return {"message": "Déconnexion réussie"}
+    return {"message": "Session inexistante ou déjà expirée"}
+
+
+@app.get("/api/auth/me", tags=["Authentification"])
+def get_current_user(x_token: Optional[str] = Header(default=None)):
+    """Retourne les informations de l'utilisateur connecté."""
+    if not x_token or x_token not in sessions:
+        raise HTTPException(status_code=401, detail="Non authentifié ou session expirée")
+    return sessions[x_token]
+
+
+# ==========================================
+# MODÈLES PYDANTIC - DONNÉES
 # ==========================================
 
 class RegionCreate(BaseModel):
