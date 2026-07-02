@@ -15,7 +15,7 @@ import secrets
 
 # Ajouter le répertoire parent au path pour les imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from classes.modele import AnalyseurStatistique, get_db_connection
+from classes.analyseur import AnalyseurStatistique, get_db_connection
 from classes.region import Region
 from classes.province import Province
 from classes.cereale import Cereale
