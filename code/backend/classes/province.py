@@ -1,16 +1,20 @@
 try:
     from backend.classes.modele import get_db_connection
+    from backend.classes.region import Region
 except ImportError:
     from classes.modele import get_db_connection
+    from classes.region import Region
 
-class Province:
+class Province(Region):
     """
     Classe représentant une province.
-    Gère les opérations CRUD (Création, Lecture, Mise à jour, Suppression) pour la table `provinces`.
+    Hérite de la classe Region (relation 'est un').
+    Gère les opérations CRUD pour la table `provinces`.
     """
-    def __init__(self, id_province=None, id_region=None, nom_province=None, chef_lieu=None, historique_sinistres=None):
+    def __init__(self, id_province=None, id_region=None, nom_province=None, chef_lieu=None, historique_sinistres=None, nom_region=None, population_totale=None, superficie=None):
+        # Initialiser la classe parente Region
+        super().__init__(id_region=id_region, nom_region=nom_region, population_totale=population_totale, superficie=superficie)
         self.id_province = id_province
-        self.id_region = id_region
         self.nom_province = nom_province
         self.chef_lieu = chef_lieu
         self.historique_sinistres = historique_sinistres

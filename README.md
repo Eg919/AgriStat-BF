@@ -33,17 +33,17 @@ pip install -r requirements.txt
 ```
 
 ### 2. Démarrer le backend (Port 8000)
-Placez-vous dans le dossier `backend` et lancez le serveur Uvicorn :
+Placez-vous dans le dossier `code/backend` et lancez le serveur Uvicorn :
 ```bash
-cd backend
+cd code/backend
 python -m uvicorn main:app --reload --port 8000
 ```
 Le serveur s'exécutera localement sur : `http://127.0.0.1:8000`
 
 ### 3. Démarrer le frontend (Port 8080)
-Démarrez un serveur HTTP simple à partir du dossier `frontend` :
+Démarrez un serveur HTTP simple à partir du dossier `code/frontend` :
 ```bash
-cd frontend
+cd code/frontend
 python -m http.server 8080
 ```
 Puis accédez à l'application dans votre navigateur : **`http://127.0.0.1:8080/login.html`**
